@@ -8,30 +8,35 @@
 import Foundation
 import SwiftData
 
-/// Represents a financial transacton
+/// Represents a financial transaction
+enum TransactionType: String, Codable {
+    case income;
+    case expense;
+}
+
 @Model
 final class Transaction {
     
     // MARK: - Properties
     
-    var date: Date
-    var amount: Double
-    var type: String
-    var category: String
-    var note: String?
+    var date: Date;
+    var amount: Double;
+    var type: TransactionType;
+    var category: String;
+    var note: String?;
     
     // MARK: - Initializer
     init(
         date: Date,
          amount: Double,
-         type: String,
+         type: TransactionType,
          category: String,
          note: String? = nil
     ) {
-        self.date = date
-        self.amount = amount
-        self.type = type
-        self.category = category
-        self.note = note
+        self.date = date;
+        self.amount = amount;
+        self.type = type;
+        self.category = category;
+        self.note = note;
     }
 }
