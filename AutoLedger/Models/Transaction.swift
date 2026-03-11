@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftData
+import SwiftUI
 
 /// Represents a financial transaction
 enum TransactionType: String, Codable {
@@ -39,4 +40,12 @@ final class Transaction {
         self.category = category;
         self.note = note;
     }
+	
+	var displayColor: Color {
+		if type == .expense {
+			return .red;
+		} else {
+			return .green;
+		}
+	}
 }
