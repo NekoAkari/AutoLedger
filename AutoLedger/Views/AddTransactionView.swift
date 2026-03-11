@@ -18,12 +18,16 @@ struct AddTransactionView: View {
     @State private var type: TransactionType = .expense
     @State private var category: String = ""
     @State private var note: String = ""
+	
+	private var canSave: Bool {
+		(amount > 0 && !name.trimmingCharacters(in: .whitespaces).isEmpty)
+	}
 
     var body: some View {
         NavigationStack {
             Form {
                 Section("Amount") {
-                    TextField("Amount", value: $amount, format: .number)
+                    TextField("Amount", value: $amount, format: .currency(code:"CAD"))
 #if os(iOS)
                         .keyboardType(.decimalPad)
 #endif
@@ -82,6 +86,8 @@ struct AddTransactionView: View {
                     date = Date()
                     type = .expense
                 }
+				.disabled(!canSave)
+				.opacity(canSave ? 1 : 0.5)
             }
             .navigationTitle("Add Transaction")
         }
