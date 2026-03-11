@@ -19,7 +19,7 @@ enum TransactionType: String, Codable {
 final class Transaction {
     
     // MARK: - Properties
-    
+	var name: String;
     var date: Date;
     var amount: Double;
     var type: TransactionType;
@@ -28,12 +28,14 @@ final class Transaction {
     
     // MARK: - Initializer
     init(
+		name: String,
         date: Date,
-         amount: Double,
-         type: TransactionType,
-         category: String,
-         note: String? = nil
+		amount: Double,
+		type: TransactionType,
+		category: String,
+		note: String? = nil
     ) {
+		self.name = name;
         self.date = date;
         self.amount = amount;
         self.type = type;
