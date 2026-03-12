@@ -139,7 +139,7 @@ struct AddTransactionView: View {
 					Button {
 						saveTransaction()
 					} label: {
-						Image(systemName: "checkmark")
+						Image(systemName: "plus")
 					}
 					.buttonStyle(.borderedProminent)
 					.tint(canSave ? .blue : .gray)
