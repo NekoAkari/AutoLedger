@@ -95,17 +95,18 @@ struct AddTransactionView: View {
 						note: note.isEmpty ? nil : note
 					)
 					
-					// Save the transaction to SwiftDate
+					// Save the transaction to SwiftData
 					modelContext.insert(transaction)
 					
 					// Reset the form after saving
 					amount = 0
 					name = ""
 					time = Date()
+					date = Date()
 					category = ""
 					note = ""
-					date = Date()
 					type = .expense
+					focusedField = nil
 				}
 				.disabled(!canSave)
 				.opacity(canSave ? 1 : 0.5)
@@ -121,7 +122,8 @@ struct AddTransactionView: View {
 					}
 				}
 			}
-			.onTapGesture {
+			.scrollDismissesKeyboard(.interactively)
+			.onSubmit {
 				focusedField = nil
 			}
 		}
