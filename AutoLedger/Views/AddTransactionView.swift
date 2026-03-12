@@ -25,7 +25,7 @@ struct AddTransactionView: View {
 	@Environment(\.modelContext) private var modelContext
 	
 	// MARK: - Form State
-	@State private var amount: Double = 0
+	@State private var amountText: String = ""
 	@State private var name: String = ""
 	@State private var time: Date = Date()
 	@State private var date: Date = Date()
@@ -45,7 +45,10 @@ struct AddTransactionView: View {
 	
 	// Save is only enabled when the user enters a valid amount and a non‑empty name
 	private var canSave: Bool {
-		amount > 0 && !name.trimmingCharacters(in: .whitespaces).isEmpty
+		if let value = Double(amountText) {
+			return value > 0 && !name.trimmingCharacters(in: .whitespaces).isEmpty
+		}
+		return false;
 	}
 	
 	// MARK: - Save Transaction
@@ -62,7 +65,7 @@ struct AddTransactionView: View {
 		let transaction = Transaction(
 			name: name,
 			date: combinedDate,
-			amount: amount,
+			amount: Double(amountText) ?? 0,
 			type: type,
 			category: category,
 			note: note.isEmpty ? nil : note
@@ -72,7 +75,7 @@ struct AddTransactionView: View {
 		modelContext.insert(transaction)
 		
 		// Reset the form after saving
-		amount = 0
+		amountText = ""
 		name = ""
 		time = Date()
 		date = Date()
@@ -86,14 +89,32 @@ struct AddTransactionView: View {
 #endif
 	}
 	
+	// MARK: - Save Button
+	@ViewBuilder
+	private func  saveButton() -> some View {
+		Button {
+				saveTransaction()
+			} label: {
+				Image(systemName: "plus")
+			}
+			.buttonStyle(.borderedProminent)
+			.tint(canSave ? .blue : .gray)
+			.disabled(!canSave)
+	}
+	
 	var body: some View {
 		NavigationStack {
 			
 			Form {
 				
 				Section("Amount") {
-					TextField("Amount", value: $amount, format: .currency(code: "CAD"))
-						.focused($focusedField, equals: .amount)
+					HStack {
+						Text(CurrencySettings.currencySymbol)
+							.foregroundStyle(.secondary)
+						
+						TextField("0.00", text: $amountText)
+							.focused($focusedField, equals: .amount)
+					}
 #if os(iOS)
 						.keyboardType(.decimalPad)
 #endif
@@ -135,16 +156,15 @@ struct AddTransactionView: View {
 			
 			.toolbar {
 				
-				ToolbarItem(placement: .topBarTrailing) {
-					Button {
-						saveTransaction()
-					} label: {
-						Image(systemName: "plus")
-					}
-					.buttonStyle(.borderedProminent)
-					.tint(canSave ? .blue : .gray)
-					.disabled(!canSave)
+#if os(macOS)
+				ToolbarItem(placement: .primaryAction) {
+					saveButton()
 				}
+#else
+				ToolbarItem(placement: .topBarTrailing) {
+					saveButton()
+				}
+#endif
 				
 				ToolbarItemGroup(placement: .keyboard) {
 					Spacer()

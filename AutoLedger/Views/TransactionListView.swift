@@ -58,7 +58,7 @@ struct TransactionListView: View {
 									Text(transaction.type == .expense ? "Expense" : "Income")
 										.font(.caption)
 										.foregroundStyle(.secondary)
-									Text(transaction.amount, format: .currency(code: "CAD"))
+									Text(transaction.amount, format: .currency(code: CurrencySettings.currencyCode))
 										.font(.headline)
 										.foregroundStyle(transaction.displayColor)
 								}

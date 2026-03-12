@@ -56,7 +56,7 @@ struct SummaryView: View {
 				.font(.headline)
 				.foregroundStyle(.secondary)
 			
-			Text(amount, format: .currency(code: "CAD"))
+			Text(amount, format: .currency(code: CurrencySettings.currencyCode))
 				.font(.largeTitle)
 				.fontWeight(.bold)
 				.foregroundStyle(color)
