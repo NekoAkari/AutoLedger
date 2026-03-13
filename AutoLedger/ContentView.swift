@@ -13,11 +13,15 @@ struct ContentView: View {
         TabView {
             SummaryView()
                 .tabItem {
-                    Label("Summary", systemImage: "chart.pie")
+                    Label("Summary", systemImage: "rectangle.stack")
                 }
+			AccountsView()
+				.tabItem {
+					Label("Accounts", systemImage: "creditcard")
+				}
             TransactionListView()
                 .tabItem {
-                    Label("Transactions", systemImage: "list.bullet")
+                    Label("Transactions", systemImage: "scroll")
                 }
             AddTransactionView()
                 .tabItem {

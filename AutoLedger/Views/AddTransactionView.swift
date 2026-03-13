@@ -89,19 +89,6 @@ struct AddTransactionView: View {
 #endif
 	}
 	
-	// MARK: - Save Button
-	@ViewBuilder
-	private func  saveButton() -> some View {
-		Button {
-				saveTransaction()
-			} label: {
-				Image(systemName: "plus")
-			}
-			.buttonStyle(.borderedProminent)
-			.tint(canSave ? .blue : .gray)
-			.disabled(!canSave)
-	}
-	
 	var body: some View {
 		NavigationStack {
 			
@@ -158,11 +145,15 @@ struct AddTransactionView: View {
 				
 #if os(macOS)
 				ToolbarItem(placement: .primaryAction) {
-					saveButton()
+					SaveButton(canSave: canSave) {
+						saveTransaction()
+					}
 				}
 #else
 				ToolbarItem(placement: .topBarTrailing) {
-					saveButton()
+					SaveButton(canSave: canSave) {
+						saveTransaction()
+					}
 				}
 #endif
 				

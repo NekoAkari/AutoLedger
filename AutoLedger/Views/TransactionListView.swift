@@ -23,47 +23,13 @@ struct TransactionListView: View {
 				if transactions.isEmpty {
 					ContentUnavailableView(
 						"No Transactions Yet",
-						systemImage: "tray",
+						systemImage: "plus.capsule",
 						description: Text("Add your first transaction from the Add tab.")
 					)
 				} else {
 					List {
 						ForEach(transactions) { transaction in
-							HStack(alignment: .center, spacing: 12) {
-								// MARK: - Transaction Icon
-								Image(systemName: transaction.type == .expense ? "arrow.up.circle.fill" : "arrow.down.circle.fill")
-									.font(.title3)
-									.foregroundStyle(transaction.displayColor)
-								// MARK: - Transaction Info (Left Side)
-								VStack(alignment: .leading, spacing: 4) {
-									
-									// Display transaction name as the main title.
-									Text(transaction.name)
-										.font(.headline)
-									
-									// Show category under the name
-									Text(transaction.category)
-										.font(.subheadline)
-										.foregroundStyle(.secondary)
-									
-									// Display formatted date and time.
-									Text(transaction.date, format: .dateTime.month().day().hour().minute())
-										.font(.caption)
-										.foregroundStyle(.gray)
-								}
-								Spacer()
-								
-								// MARK: - Amount & Type (Right Side)
-								VStack(alignment: .trailing, spacing: 4) {
-									Text(transaction.type == .expense ? "Expense" : "Income")
-										.font(.caption)
-										.foregroundStyle(.secondary)
-									Text(transaction.amount, format: .currency(code: CurrencySettings.currencyCode))
-										.font(.headline)
-										.foregroundStyle(transaction.displayColor)
-								}
-							}
-							.padding(.vertical, 4)
+							TransactionRow(transaction: transaction)
 						}
 						.onDelete(perform: deleteTransactions)
 					}

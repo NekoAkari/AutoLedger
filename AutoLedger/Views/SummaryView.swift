@@ -10,10 +10,10 @@ import SwiftData
 
 struct SummaryView: View {
 	
-	// MARK: - Fetch Transactions
+		// MARK: - Fetch Transactions
 	@Query private var transactions: [Transaction]
 	
-	// MARK: - Computed Totals
+		// MARK: - Computed Totals
 	private var totalIncome: Double {
 		transactions
 			.filter { $0.type == .income }
@@ -30,41 +30,21 @@ struct SummaryView: View {
 		totalIncome - totalExpense
 	}
 	
-    var body: some View {
+	var body: some View {
 		NavigationStack {
 			VStack(spacing: 24) {
 				
-				summaryCard(title: "Balance", amount: balance, color: .primary)
+				SummaryCard(title: "Balance", amount: balance, color: .primary)
 				
-				summaryCard(title: "Income", amount: totalIncome, color: .green)
+				SummaryCard(title: "Income", amount: totalIncome, color: .green)
 				
-				summaryCard(title: "Expense", amount: totalExpense, color: .red)
+				SummaryCard(title: "Expense", amount: totalExpense, color: .red)
 				
 				Spacer()
 			}
 			.padding()
 			.navigationTitle("Summary")
 		}
-    }
-	
-	// MARK: - Summary Card
-	@ViewBuilder
-	private func summaryCard(title: String, amount: Double, color:Color) -> some View {
-		VStack(alignment: .leading, spacing: 8) {
-			
-			Text(title)
-				.font(.headline)
-				.foregroundStyle(.secondary)
-			
-			Text(amount, format: .currency(code: CurrencySettings.currencyCode))
-				.font(.largeTitle)
-				.fontWeight(.bold)
-				.foregroundStyle(color)
-		}
-		.frame(maxWidth: .infinity, alignment: .leading)
-		.padding()
-		.background(.ultraThinMaterial)
-		.clipShape(RoundedRectangle(cornerRadius: 16))
 	}
 }
 
