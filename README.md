@@ -2,6 +2,7 @@
 ![Platform](https://img.shields.io/badge/iOS-26-blue)
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Status](https://img.shields.io/badge/status-In%20development-yellow)
+[![CI](https://github.com/NekoAkari/AutoLedger/actions/workflows/ios.yml/badge.svg)](https://github.com/NekoAkari/AutoLedger/actions)
 
 # ✨ AutoLedger
 
