@@ -3,8 +3,20 @@ name: iOS Build
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - "AutoLedger/**"
+      - "AutoLedger.xcodeproj/**"
+      - ".github/workflows/ios.yml"
   pull_request:
     branches: [ "main" ]
+    paths:
+      - "AutoLedger/**"
+      - "AutoLedger.xcodeproj/**"
+      - ".github/workflows/ios.yml"
+
+concurrency:
+  group: ios-build-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -20,6 +32,6 @@ jobs:
           xcodebuild \
           -project AutoLedger.xcodeproj \
           -scheme AutoLedger \
-          -destination 'platform=iOS Simulator,name=iPhone 16' \
+          -destination 'platform=iOS Simulator,OS=latest,name=iPhone 15' \
           -configuration Debug \
           build
