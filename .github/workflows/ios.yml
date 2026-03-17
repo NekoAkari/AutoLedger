@@ -32,6 +32,6 @@ jobs:
           xcodebuild \
           -project AutoLedger.xcodeproj \
           -scheme AutoLedger \
-          -destination 'platform=iOS Simulator,OS=latest,name=iPhone 15' \
+          -destination 'generic/platform=iOS Simulator' \
           -configuration Debug \
           build
