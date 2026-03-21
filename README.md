@@ -65,7 +65,7 @@ Open in **Xcode**:
 AutoLedger.xcodeproj
 ```
 
-Run on simulator or your own device.
+Run on iOS simulator or your own device.
 
 ---
 
@@ -74,8 +74,8 @@ Run on simulator or your own device.
 - [x] Transaction list view
 - [x] Summary cards
 - [x] Reusable components
+- [x] Transaction editing
 - [ ] Accounts system
-- [ ] Transaction editing
 - [ ] Charts and analytics
 - [ ] Budget tracking
 
@@ -87,6 +87,8 @@ This project is part of my exploration into SwiftUI, UI component design, and bu
 ---
 
 ## 📄 License
-MIT License
+Copyright © 2026 Neko Akari
+All rights reserved.
 
-> This project is primarily for learning and portfolio purposes.
+This project is for personal use and portfolio only.
+Unauthorized use, copying, or distribution is prohibited.
