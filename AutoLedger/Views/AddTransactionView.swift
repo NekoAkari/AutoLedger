@@ -10,187 +10,144 @@ import SwiftData
 
 #if os(iOS)
 private extension View {
-	func hideKeyboard() {
-		UIApplication.shared.sendAction(
-		#selector(UIResponder.resignFirstResponder),
-		to: nil,
-		from: nil,
-		for: nil
-		)
-	}
+    func hideKeyboard() {
+        UIApplication.shared.sendAction(
+        #selector(UIResponder.resignFirstResponder),
+        to: nil,
+        from: nil,
+        for: nil
+        )
+    }
 }
 #endif
 
 struct AddTransactionView: View {
-	@Environment(\.modelContext) private var modelContext
-	
-	// MARK: - Form State
-	@State private var amountText: String = ""
-	@State private var name: String = ""
-	@State private var time: Date = Date()
-	@State private var date: Date = Date()
-	@State private var type: TransactionType = .expense
-	@State private var category: String = ""
-	@State private var note: String = ""
-	
-	// Tracks which text field is currently active so the keyboard can be dismissed
-	@FocusState private var focusedField: Field?
-	
-	enum Field {
-		case amount
-		case name
-		case category
-		case note
-	}
-	
-	// Save is only enabled when the user enters a valid amount and a non‑empty name
-	private var canSave: Bool {
-		if let value = Double(amountText) {
-			return value > 0 && !name.trimmingCharacters(in: .whitespaces).isEmpty
-		}
-		return false;
-	}
-	
-	// MARK: - Save Transaction
-	private func saveTransaction() {
-		
-		// Combine the selected date and time into one Date value for storage
-		let combinedDate = Calendar.current.date(
-			bySettingHour: Calendar.current.component(.hour, from: time),
-			minute: Calendar.current.component(.minute, from: time),
-			second: 0,
-			of: date
-		) ?? date
-		
-		let transaction = Transaction(
-			name: name,
-			date: combinedDate,
-			amount: Double(amountText) ?? 0,
-			type: type,
-			category: category,
-			note: note.isEmpty ? nil : note
-		)
-		
-		// Save the transaction to SwiftData
-		modelContext.insert(transaction)
-		
-		// Reset the form after saving
-		amountText = ""
-		name = ""
-		time = Date()
-		date = Date()
-		category = ""
-		note = ""
-		type = .expense
-		focusedField = nil
-		
-#if os(iOS)
-		hideKeyboard()
-#endif
-	}
-	
-	var body: some View {
-		NavigationStack {
-			
-			Form {
-				
-				Section("Amount") {
-					HStack {
-						Text(CurrencySettings.currencySymbol)
-							.foregroundStyle(.secondary)
-						
-						TextField("0.00", text: $amountText)
-							.focused($focusedField, equals: .amount)
-					}
-#if os(iOS)
-						.keyboardType(.decimalPad)
-#endif
-				}
-				
-				Section("Name") {
-					TextField("Transaction name", text: $name)
-						.focused($focusedField, equals: .name)
-				}
-				
-				Section("Type") {
-					Picker("Type", selection: $type) {
-						Text("Expense").tag(TransactionType.expense)
-						Text("Income").tag(TransactionType.income)
-					}
-					.pickerStyle(.segmented)
-				}
-				
-				Section("Category") {
-					TextField("Category", text: $category)
-						.focused($focusedField, equals: .category)
-				}
-				
-				Section("Date") {
-					DatePicker("Date", selection: $date, displayedComponents: .date)
-				}
-				
-				Section("Time") {
-					DatePicker("Time", selection: $time, displayedComponents: .hourAndMinute)
-				}
-				
-				Section("Note") {
-					TextField("Optional note", text: $note)
-						.focused($focusedField, equals: .note)
-				}
-			}
-			
-			.navigationTitle("Add Transaction")
-			
-			.toolbar {
-				
-#if os(macOS)
-				ToolbarItem(placement: .primaryAction) {
-					SaveButton(canSave: canSave) {
-						saveTransaction()
-					}
-				}
-#else
-				ToolbarItem(placement: .topBarTrailing) {
-					SaveButton(canSave: canSave) {
-						saveTransaction()
-					}
-				}
-#endif
-				
-				ToolbarItemGroup(placement: .keyboard) {
-					Spacer()
-					
-//					Button {
-//						focusedField = nil
+    @Environment(\.modelContext) private var modelContext
+    
+    // MARK: - Form State
+    @State private var amountText: String = ""
+    @State private var name: String = ""
+    @State private var date: Date = Date()
+    @State private var time: Date = Date()
+    @State private var type: TransactionType = .expense
+    @State private var category: String = ""
+    @State private var note: String = ""
+    
+    // Tracks which text field is currently active so the keyboard can be dismissed
+    @FocusState private var focusedField: TransactionFormField?
+    
+    // Save is only enabled when the user enters a valid amount and a non‑empty name
+    private var canSave: Bool {
+        if let value = Double(amountText) {
+            return value > 0 && !name.trimmingCharacters(in: .whitespaces).isEmpty
+        }
+        return false;
+    }
+    
+    // MARK: - Save Transaction
+    private func saveTransaction() {
+        
+        // Combine the selected date and time into one Date value for storage
+        let combinedDate = Calendar.current.date(
+            bySettingHour: Calendar.current.component(.hour, from: time),
+            minute: Calendar.current.component(.minute, from: time),
+            second: 0,
+            of: date
+        ) ?? date
+        
+        let transaction = Transaction(
+            name: name,
+            date: combinedDate,
+            amount: Double(amountText) ?? 0,
+            type: type,
+            category: category,
+            note: note.isEmpty ? nil : note
+        )
+        
+        // Save the transaction to SwiftData
+        modelContext.insert(transaction)
+        
+        // Reset the form after saving
+        amountText = ""
+        name = ""
+        date = Date()
+        time = Date()
+        category = ""
+        note = ""
+        type = .expense
+        focusedField = nil
+        
+        #if os(iOS)
+        hideKeyboard()
+        #endif
+    }
+    
+    var body: some View {
+        NavigationStack {
+            
+            TransactionFormFields(
+                amountText: $amountText,
+                name: $name,
+                type: $type,
+                category: $category,
+                date: $date,
+                time: $time,
+                note: $note,
+                focusedField: $focusedField
+            )
+            
+            .navigationTitle("Add Transaction")
+            
+            .toolbar {
+                
+                #if os(macOS)
+                ToolbarItem(placement: .primaryAction) {
+                    SaveButton(canSave: canSave) {
+                        saveTransaction()
+                    }
+                }
+                #else
+                ToolbarItem(placement: .topBarTrailing) {
+                    SaveButton(canSave: canSave) {
+                        saveTransaction()
+                    }
+                }
+                #endif
+                
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    
+//                    Button {
+//                        focusedField = nil
 //#if os(iOS)
-//						hideKeyboard()
+//                        hideKeyboard()
 //#endif
-//					} label: {
-//						Image(systemName: "xmark")
-//					}
-				}
-			}
-			
-			.contentShape(Rectangle())
-			.onTapGesture {
-				focusedField = nil
-#if os(iOS)
-				hideKeyboard()
-#endif
-			}
-			
-			.scrollDismissesKeyboard(.immediately)
-			
-			.onSubmit {
-				focusedField = nil
-#if os(iOS)
-				hideKeyboard()
-#endif
-			}
-		}
-	}
+//                    } label: {
+//                        Image(systemName: "xmark")
+//                    }
+                }
+            }
+            
+            .contentShape(Rectangle())
+            .onTapGesture {
+                focusedField = nil
+                #if os(iOS)
+                hideKeyboard()
+                #endif
+            }
+            
+            .scrollDismissesKeyboard(.immediately)
+            
+            .onSubmit {
+                focusedField = nil
+                #if os(iOS)
+                hideKeyboard()
+                #endif
+            }
+        }
+    }
 }
 
 #Preview {
-	AddTransactionView()
+    AddTransactionView()
 }

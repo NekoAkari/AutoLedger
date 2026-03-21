@@ -28,9 +28,13 @@ struct TransactionListView: View {
 					)
 				} else {
 					List {
-						ForEach(transactions) { transaction in
-							TransactionRow(transaction: transaction)
-						}
+                        ForEach(transactions) { transaction in
+                            NavigationLink {
+                                TransactionEditorView(transaction: transaction)
+                            } label: {
+                                TransactionRow(transaction: transaction)
+                            }
+                        }
 						.onDelete(perform: deleteTransactions)
 					}
 				}
