@@ -9,14 +9,15 @@ import Foundation
 import SwiftUI
 
 struct CurrencySettings {
-	static let currencyCode = "CAD"
-	
-	static var currencySymbol: String {
-		let formatter = NumberFormatter()
-		formatter.numberStyle = .currency
-		formatter.currencyCode = CurrencySettings.currencyCode
-		return formatter.currencySymbol
-	}
+    static let currencyCode = "CAD"
+
+    // Reuse one formatter so view redraws do not keep allocating it.
+    private static let formatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencyCode = currencyCode
+        return formatter
+    }()
+
+    static let currencySymbol: String = formatter.currencySymbol
 }
-
-

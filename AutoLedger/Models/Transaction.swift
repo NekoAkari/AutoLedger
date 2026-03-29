@@ -11,43 +11,40 @@ import SwiftUI
 
 /// Represents a financial transaction
 enum TransactionType: String, Codable {
-    case income;
-    case expense;
+    case income
+    case expense
 }
 
 @Model
 final class Transaction {
-    
+
     // MARK: - Properties
-	var name: String;
-    var date: Date;
-    var amount: Double;
-    var type: TransactionType;
-    var category: String;
+    var name: String
+    var date: Date
+    var amount: Double
+    var type: TransactionType
+    var category: String
     var note: String?;
-    
+
     // MARK: - Initializer
     init(
-		name: String,
+        name: String,
         date: Date,
-		amount: Double,
-		type: TransactionType,
-		category: String,
-		note: String? = nil
+        amount: Double,
+        type: TransactionType,
+        category: String,
+        note: String? = nil
     ) {
-		self.name = name;
-        self.date = date;
-        self.amount = amount;
-        self.type = type;
-        self.category = category;
-        self.note = note;
+        self.name = name
+        self.date = date
+        self.amount = amount
+        self.type = type
+        self.category = category
+        self.note = note
     }
-	
-	var displayColor: Color {
-		if type == .expense {
-			return .red;
-		} else {
-			return .green;
-		}
-	}
+
+    // Keep UI color mapping derived from the transaction type.
+    var displayColor: Color {
+        type == .expense ? .red : .green
+    }
 }
