@@ -1,38 +1,41 @@
+[![CI](https://github.com/NekoAkari/AutoLedger/actions/workflows/ios.yml/badge.svg)](https://github.com/NekoAkari/AutoLedger/actions)
 ![Swift](https://img.shields.io/badge/Swift-5-orange)
 ![Platform](https://img.shields.io/badge/iOS-26-blue)
-![License](https://img.shields.io/badge/License-MIT-green)
 ![Status](https://img.shields.io/badge/status-In%20development-yellow)
-[![CI](https://github.com/NekoAkari/AutoLedger/actions/workflows/ios.yml/badge.svg)](https://github.com/NekoAkari/AutoLedger/actions)
+![License](https://img.shields.io/badge/license-All%20rights%20reserved-lightgrey)
 
-# ✨ AutoLedger
+# AutoLedger
 
-> A minimal yet elegant personal finance tracker built with **SwiftUI**.
-
----
-
-## 🧾 Overview
-AutoLedger is a personal finance app designed for simplicity and clarity.
-It allows users to track income and expenses, visualize their balance, and manage transactions through a clean and modern interface.
-
-This project is also a learning journey in building real-world SwiftUI applications with a component-based architecture.
+> A minimal yet polished personal finance tracker built with **SwiftUI** and **SwiftData**.
 
 ---
 
-## 🚀 Features
-- 💸 Add income and expense records
-- 📜 View transaction history
-- 📊 Real-time balance summary
-- 🧩 Reusable SwiftUI components
-- 🧼 Clean and minimal UI design
+## Overview
+
+AutoLedger is a personal finance app designed around a simple workflow: record transactions, review history, and check balance summaries in a clean interface.
+
+This project also serves as a practical exploration of reusable SwiftUI components, app structure, and maintainable UI implementation.
 
 ---
 
-## 📸 Screenshots
-> UI is actively evolving — screenshots coming soon.
+## Features
+
+- Add income and expense records
+- View transaction history
+- Review real-time balance summaries
+- Edit existing transactions
+- Reuse shared SwiftUI form and display components
 
 ---
 
-## 🛠 Tech Stack
+## Screenshots
+
+> Screenshots are not included yet. I 'll add them here once the UI stabilizes.
+
+---
+
+## Tech Stack
+
 - **Swift**
 - **SwiftUI**
 - **SwiftData**
@@ -40,38 +43,42 @@ This project is also a learning journey in building real-world SwiftUI applicati
 
 ---
 
-## 🧱 Project Structure
-```
-AutoLedger
-├── Models
-├── Views
-├── Components
-├── Settings
-└── Utilities
+## Project Structure
+
+```text
+AutoLedger/
+├── Components/
+├── Models/
+├── Services/
+├── Utilities/
+└── Views/
 ```
 
 ---
 
-## ⚙️ Development
+## Development
+
 Clone the repository:
 
-```
+```bash
 git clone https://github.com/NekoAkari/AutoLedger.git
+cd AutoLedger
 ```
 
-Open in **Xcode**:
+Open the project in Xcode:
 
-```
-AutoLedger.xcodeproj
+```bash
+open AutoLedger.xcodeproj
 ```
 
-Run on iOS simulator or your own device.
+Run the app on an iOS simulator or a connected device.
 
 ---
 
-## 🗺 Roadmap
-- [x] Add transaction form
-- [x] Transaction list view
+## Roadmap
+
+- [x] Transaction form
+- [x] Transaction list
 - [x] Summary cards
 - [x] Reusable components
 - [x] Transaction editing
@@ -81,14 +88,14 @@ Run on iOS simulator or your own device.
 
 ---
 
-## 🧠 About This Project
-This project is part of my exploration into SwiftUI, UI component design, and building clean, maintainable app architectures.
+## About This Project
+
+AutoLedger is part of an ongoing effort to build real-world SwiftUI projects with a stronger focus on UI composition, code reuse, and incremental product polish.
 
 ---
 
-## 📄 License
-Copyright © 2026 Neko Akari
-All rights reserved.
+## License
 
-This project is for personal use and portfolio only.
-Unauthorized use, copying, or distribution is prohibited.
+Copyright © 2026 Neko Akari
+
+All rights reserved. This project is provided for personal use and portfolio purposes only. Unauthorized use, copying, or distribution is prohibited.
