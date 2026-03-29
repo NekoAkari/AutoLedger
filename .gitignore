@@ -1,14 +1,27 @@
 # macOS
 .DS_Store
 
-# IntelliJ
+# IDEs
 .idea/
 out/
 *.iml
 
-# Xcode
+# Xcode build output
 DerivedData/
 build/
-*.xcuserstate
-xcuserdata/
 
+# Xcode user state
+*.xcuserstate
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+*.xcscmblueprint
+**/xcuserdata/
+
+# Swift Package Manager
+.swiftpm/
+
+# Local profiling artifacts
+*.trace
+Test/
