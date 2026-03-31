@@ -12,6 +12,10 @@ struct TransactionEditorView: View {
     @Environment(\.dismiss) private var dismiss
     
     @Bindable var transaction: Transaction
+    // The editor can either own its toolbar action or be embedded inline inside the macOS detail pane.
+    var showsToolbarButton: Bool = true
+    var onCancel: (() -> Void)? = nil
+    var onSave: (() -> Void)? = nil
     
     @State private var amountText: String = ""
     @State private var name: String = ""
@@ -31,27 +35,60 @@ struct TransactionEditorView: View {
     }
     
     var body: some View {
-        TransactionFormFields(
-            amountText: $amountText,
-            name: $name,
-            type: $type,
-            category: $category,
-            date: $date,
-            time: $time,
-            note: $note,
-            focusedField: $focusedField
-        )
-        .navigationTitle("Edit Transaction")
-        .toolbar {
-            ToolbarItem(placement: .confirmationAction) {
-                Button {
-                    guard canSave else { return }
-                    saveEdits()
-                    dismiss()
-                } label: {
-                    Image(systemName: "checkmark")
+        VStack(spacing: 0) {
+            TransactionFormFields(
+                amountText: $amountText,
+                name: $name,
+                type: $type,
+                category: $category,
+                date: $date,
+                time: $time,
+                note: $note,
+                focusedField: $focusedField
+            )
+            .navigationTitle("Edit Transaction")
+
+            if !showsToolbarButton {
+                Divider()
+
+                HStack {
+                    Button("Cancel") {
+                        onCancel?()
+                    }
+
+                    Spacer()
+
+                    Button {
+                        guard canSave else { return }
+                        saveEdits()
+                        onSave?()
+                    } label: {
+                        Label("Save Changes", systemImage: "checkmark.circle.fill")
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(!canSave)
                 }
-                .disabled(!canSave)
+                .padding(.horizontal, 24)
+                .padding(.vertical, 14)
+            }
+        }
+        .toolbar {
+            if showsToolbarButton {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button {
+                        guard canSave else { return }
+                        saveEdits()
+                        onSave?()
+                        dismiss()
+                    } label: {
+                        #if os(macOS)
+                        Label("Done", systemImage: "checkmark.circle.fill")
+                        #else
+                        Image(systemName: "checkmark")
+                        #endif
+                    }
+                    .disabled(!canSave)
+                }
             }
         }
         .onAppear {
@@ -66,6 +103,7 @@ struct TransactionEditorView: View {
     }
     
     private func saveEdits() {
+        // Persist the date and time pickers as one stored timestamp on the model.
         let combinedDate = Calendar.current.date(
             bySettingHour: Calendar.current.component(.hour, from: time),
             minute: Calendar.current.component(.minute, from: time),

@@ -10,7 +10,7 @@ import SwiftData
 
 struct SummaryView: View {
     // MARK: - Fetch Transactions
-    @Query private var transactions: [Transaction]
+    @Query(sort: \Transaction.date, order: .reverse) private var transactions: [Transaction]
 
     // Aggregate income and expense in one pass to reduce work during updates.
     private var totals: TransactionTotals {
@@ -28,33 +28,14 @@ struct SummaryView: View {
         let totals = totals
 
         #if os(macOS)
-        ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
-                SummaryCard(title: "Balance", amount: totals.balance, color: .primary)
-                SummaryCard(title: "Income", amount: totals.income, color: .green)
-                SummaryCard(title: "Expense", amount: totals.expense, color: .red)
-            }
-            .frame(maxWidth: 720, alignment: .leading)
-            .padding(24)
-        }
-        .navigationTitle("Summary")
-        #elseif os (iOS)
-        NavigationStack {
-            VStack(spacing: 24) {
-                SummaryCard(title: "Balance", amount: totals.balance, color: .primary)
-                SummaryCard(title: "Income", amount: totals.income, color: .green)
-                SummaryCard(title: "Expense", amount: totals.expense, color: .red)
-
-                Spacer()
-            }
-            .padding()
-            .navigationTitle("Summary")
-        }
+        MacSummaryContent(transactions: transactions, totals: totals)
+        #else
+        IOSSummaryContent(totals: totals)
         #endif
     }
 }
 
-private struct TransactionTotals {
+struct TransactionTotals {
     var income: Double = 0
     var expense: Double = 0
 

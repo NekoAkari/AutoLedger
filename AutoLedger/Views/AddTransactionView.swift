@@ -8,19 +8,6 @@
 import SwiftUI
 import SwiftData
 
-#if os(iOS)
-private extension View {
-    func hideKeyboard() {
-        UIApplication.shared.sendAction(
-        #selector(UIResponder.resignFirstResponder),
-        to: nil,
-        from: nil,
-        for: nil
-        )
-    }
-}
-#endif
-
 struct AddTransactionView: View {
     @Environment(\.modelContext) private var modelContext
     
@@ -77,14 +64,11 @@ struct AddTransactionView: View {
         type = .expense
         focusedField = nil
         
-        #if os(iOS)
-        hideKeyboard()
-        #endif
     }
     
     var body: some View {
         #if os(macOS)
-        TransactionFormFields(
+        MacAddTransactionContent(
             amountText: $amountText,
             name: $name,
             type: $type,
@@ -92,55 +76,23 @@ struct AddTransactionView: View {
             date: $date,
             time: $time,
             note: $note,
-            focusedField: $focusedField
+            focusedField: $focusedField,
+            canSave: canSave,
+            saveTransaction: saveTransaction
         )
-        .navigationTitle("Add Transaction")
-        .toolbar {
-            ToolbarItem(placement: .primaryAction) {
-                SaveButton(canSave: canSave) {
-                    saveTransaction()
-                }
-            }
-        }
-        .frame(maxWidth: 720, maxHeight: .infinity, alignment: .topLeading)
-        .onSubmit {
-            focusedField = nil
-        }
-        #elseif os (iOS)
-        NavigationStack {
-            TransactionFormFields(
-                amountText: $amountText,
-                name: $name,
-                type: $type,
-                category: $category,
-                date: $date,
-                time: $time,
-                note: $note,
-                focusedField: $focusedField
-            )
-            .navigationTitle("Add Transaction")
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    SaveButton(canSave: canSave) {
-                        saveTransaction()
-                    }
-                }
-
-                ToolbarItemGroup(placement: .keyboard) {
-                    Spacer()
-                }
-            }
-            .contentShape(Rectangle())
-            .onTapGesture {
-                focusedField = nil
-                hideKeyboard()
-            }
-            .scrollDismissesKeyboard(.immediately)
-            .onSubmit {
-                focusedField = nil
-                hideKeyboard()
-            }
-        }
+        #else
+        IOSAddTransactionContent(
+            amountText: $amountText,
+            name: $name,
+            type: $type,
+            category: $category,
+            date: $date,
+            time: $time,
+            note: $note,
+            focusedField: $focusedField,
+            canSave: canSave,
+            saveTransaction: saveTransaction
+        )
         #endif
     }
 }

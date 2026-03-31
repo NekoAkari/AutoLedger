@@ -14,10 +14,14 @@ struct SaveButton: View {
 	
 	var body: some View {
 		Button(action: action) {
+            #if os(macOS)
+            Label("Save", systemImage: "plus.circle.fill")
+            #else
 			Image(systemName: "plus")
+            #endif
 		}
 		.buttonStyle(.borderedProminent)
-		.tint(canSave ? .blue : .gray)
+		.tint(canSave ? .accentColor : .gray)
 		.disabled(!canSave)
 	}
 }

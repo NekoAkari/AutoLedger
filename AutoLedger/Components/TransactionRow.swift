@@ -13,12 +13,10 @@ struct TransactionRow: View {
 	
 	var body: some View {
 		HStack(alignment: .center, spacing: 12) {
-			// Transaction Icon
 			Image(systemName: transaction.type == .expense ? "arrowshape.up.fill" : "arrowshape.down.fill")
 				.font(.title3)
 				.foregroundStyle(transaction.displayColor)
 			
-			// Transaction Info (Left)
 			VStack(alignment: .leading, spacing: 4) {
 				Text(transaction.name)
 					.font(.headline)
@@ -28,15 +26,14 @@ struct TransactionRow: View {
 					.foregroundStyle(.secondary)
 				
 				Text(transaction.date, format: .dateTime.month().day().hour().minute())
-					. font(.caption)
+					.font(.caption)
 					.foregroundStyle(.gray)
 			}
 			
 			Spacer()
 			
-			// Amount & Type (Right)
 			VStack(alignment: .trailing, spacing: 4) {
-				Text(transaction.type == .expense ? "Expense" : "Income")
+				Text(transaction.displayTypeLabel)
 					.font(.caption)
 					.foregroundStyle(.secondary)
 				

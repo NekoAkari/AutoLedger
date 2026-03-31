@@ -17,90 +17,28 @@ struct TransactionListView: View {
 	// Access to the SwiftData context for deleting records.
 	@Environment(\.modelContext) private var modelContext
 
-    #if os(macOS)
     @State private var selection: PersistentIdentifier?
     @State private var isEditingSelection = false
-    #endif
+    @State private var searchText = ""
 	
-	var body: some View {
+    var body: some View {
         #if os(macOS)
-        Group {
-            if transactions.isEmpty {
-                ContentUnavailableView(
-                    "No Transactions Yet",
-                    systemImage: "plus.capsule",
-                    description: Text("Add your first transaction from the Add Transaction section.")
-                )
-            } else {
-                Table(transactions, selection: $selection) {
-                    TableColumn("Name", value: \.name)
-                    TableColumn("Category", value: \.category)
-                    TableColumn("Type") { transaction in
-                        Text(transaction.type == .expense ? "Expense" : "Income")
-                            .foregroundStyle(.secondary)
-                    }
-                    TableColumn("Date") { transaction in
-                        Text(transaction.date, format: .dateTime.year().month(.abbreviated).day().hour().minute())
-                    }
-                    TableColumn("Amount") { transaction in
-                        Text(transaction.amount, format: .currency(code: CurrencySettings.currencyCode))
-                            .foregroundStyle(transaction.displayColor)
-                    }
-                }
-            }
-        }
-        .navigationTitle("Transactions")
-        .toolbar {
-            ToolbarItemGroup(placement: .primaryAction) {
-                Button {
-                    isEditingSelection = true
-                } label: {
-                    Label("Edit", systemImage: "square.and.pencil")
-                }
-                .disabled(selectedTransaction == nil)
-
-                Button(role: .destructive) {
-                    deleteSelectedTransaction()
-                } label: {
-                    Label("Delete", systemImage: "trash")
-                }
-                .disabled(selectedTransaction == nil)
-            }
-        }
-        .sheet(isPresented: $isEditingSelection) {
-            if let selectedTransaction {
-                NavigationStack {
-                    TransactionEditorView(transaction: selectedTransaction)
-                }
-                .frame(minWidth: 520, minHeight: 420)
-            }
-        }
-        #elseif os (iOS)
-		NavigationStack {
-			Group {
-				if transactions.isEmpty {
-					ContentUnavailableView(
-						"No Transactions Yet",
-						systemImage: "plus.capsule",
-						description: Text("Add your first transaction from the Add tab.")
-					)
-				} else {
-					List {
-                        ForEach(transactions) { transaction in
-                            NavigationLink {
-                                TransactionEditorView(transaction: transaction)
-                            } label: {
-                                TransactionRow(transaction: transaction)
-                            }
-                        }
-						.onDelete(perform: deleteTransactions)
-					}
-				}
-			}
-			.navigationTitle("Transactions")
-		}
+        MacTransactionListContent(
+            transactions: transactions,
+            filteredTransactions: filteredTransactions,
+            selection: $selection,
+            isEditingSelection: $isEditingSelection,
+            searchText: $searchText,
+            selectedTransaction: selectedTransaction,
+            deleteSelectedTransaction: deleteSelectedTransaction
+        )
+        #else
+        IOSTransactionListContent(
+            transactions: transactions,
+            deleteTransactions: deleteTransactions
+        )
         #endif
-	}
+    }
 	
 	// MARK: - Delete Action
 	// Remove selected transaction from SwiftData.
@@ -108,20 +46,32 @@ struct TransactionListView: View {
 		for index in offset {
 			modelContext.delete(transactions[index])
 		}
-	}
+    }
 
-    #if os(macOS)
+    private var filteredTransactions: [Transaction] {
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !query.isEmpty else { return transactions }
+
+        return transactions.filter { transaction in
+            transaction.name.localizedCaseInsensitiveContains(query)
+            || transaction.category.localizedCaseInsensitiveContains(query)
+            || (transaction.note?.localizedCaseInsensitiveContains(query) ?? false)
+        }
+    }
+
     private var selectedTransaction: Transaction? {
         guard let selection else { return nil }
-        return transactions.first { $0.persistentModelID == selection }
+        // Keep the selection stable even when the current search text temporarily hides the row.
+        return filteredTransactions.first { $0.persistentModelID == selection }
+            ?? transactions.first { $0.persistentModelID == selection }
     }
 
     private func deleteSelectedTransaction() {
         guard let selectedTransaction else { return }
         modelContext.delete(selectedTransaction)
+        isEditingSelection = false
         selection = nil
     }
-    #endif
 }
 
 #Preview {

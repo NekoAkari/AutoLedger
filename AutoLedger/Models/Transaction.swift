@@ -47,4 +47,13 @@ final class Transaction {
     var displayColor: Color {
         type == .expense ? .red : .green
     }
+
+    // Centralize presentation details so the views do not repeat the same branching.
+    var displayTypeLabel: String {
+        type == .expense ? "Expense" : "Income"
+    }
+
+    var displaySymbolName: String {
+        type == .expense ? "arrow.up.circle.fill" : "arrow.down.circle.fill"
+    }
 }

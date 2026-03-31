@@ -27,6 +27,9 @@ struct AutoLedgerApp: App {
         WindowGroup {
             ContentView()
         }
+        #if os(macOS)
+        .defaultSize(width: 1180, height: 760)
+        #endif
         .modelContainer(sharedModelContainer)
     }
 }
