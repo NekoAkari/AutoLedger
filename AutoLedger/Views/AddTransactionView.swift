@@ -83,8 +83,31 @@ struct AddTransactionView: View {
     }
     
     var body: some View {
+        #if os(macOS)
+        TransactionFormFields(
+            amountText: $amountText,
+            name: $name,
+            type: $type,
+            category: $category,
+            date: $date,
+            time: $time,
+            note: $note,
+            focusedField: $focusedField
+        )
+        .navigationTitle("Add Transaction")
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                SaveButton(canSave: canSave) {
+                    saveTransaction()
+                }
+            }
+        }
+        .frame(maxWidth: 720, maxHeight: .infinity, alignment: .topLeading)
+        .onSubmit {
+            focusedField = nil
+        }
+        #elseif os (iOS)
         NavigationStack {
-            
             TransactionFormFields(
                 amountText: $amountText,
                 name: $name,
@@ -95,56 +118,30 @@ struct AddTransactionView: View {
                 note: $note,
                 focusedField: $focusedField
             )
-            
             .navigationTitle("Add Transaction")
-            
             .toolbar {
-                
-                #if os(macOS)
-                ToolbarItem(placement: .primaryAction) {
-                    SaveButton(canSave: canSave) {
-                        saveTransaction()
-                    }
-                }
-                #else
                 ToolbarItem(placement: .topBarTrailing) {
                     SaveButton(canSave: canSave) {
                         saveTransaction()
                     }
                 }
-                #endif
-                
+
                 ToolbarItemGroup(placement: .keyboard) {
                     Spacer()
-                    
-//                    Button {
-//                        focusedField = nil
-//#if os(iOS)
-//                        hideKeyboard()
-//#endif
-//                    } label: {
-//                        Image(systemName: "xmark")
-//                    }
                 }
             }
-            
             .contentShape(Rectangle())
             .onTapGesture {
                 focusedField = nil
-                #if os(iOS)
                 hideKeyboard()
-                #endif
             }
-            
             .scrollDismissesKeyboard(.immediately)
-            
             .onSubmit {
                 focusedField = nil
-                #if os(iOS)
                 hideKeyboard()
-                #endif
             }
         }
+        #endif
     }
 }
 

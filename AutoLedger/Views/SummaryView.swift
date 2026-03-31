@@ -27,6 +27,18 @@ struct SummaryView: View {
     var body: some View {
         let totals = totals
 
+        #if os(macOS)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 24) {
+                SummaryCard(title: "Balance", amount: totals.balance, color: .primary)
+                SummaryCard(title: "Income", amount: totals.income, color: .green)
+                SummaryCard(title: "Expense", amount: totals.expense, color: .red)
+            }
+            .frame(maxWidth: 720, alignment: .leading)
+            .padding(24)
+        }
+        .navigationTitle("Summary")
+        #elseif os (iOS)
         NavigationStack {
             VStack(spacing: 24) {
                 SummaryCard(title: "Balance", amount: totals.balance, color: .primary)
@@ -38,6 +50,7 @@ struct SummaryView: View {
             .padding()
             .navigationTitle("Summary")
         }
+        #endif
     }
 }
 
