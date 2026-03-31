@@ -30,7 +30,7 @@ This project also serves as a practical exploration of reusable SwiftUI componen
 
 ## Screenshots
 
-> Screenshots are not included yet. I 'll add them here once the UI stabilizes.
+> Screenshots are not included yet. I'll add them here once the UI stabilizes.
 
 ---
 

@@ -22,37 +22,46 @@ struct TransactionEditorView: View {
     @State private var note: String = ""
     
     @FocusState private var focusedField: TransactionFormField?
+
+    private var canSave: Bool {
+        if let value = Double(amountText) {
+            return value > 0 && !name.trimmingCharacters(in: .whitespaces).isEmpty
+        }
+        return false
+    }
     
     var body: some View {
-        NavigationStack {
-            TransactionFormFields(
-                amountText: $amountText,
-                name: $name,
-                type: $type,
-                category: $category,
-                date: $date,
-                time: $time,
-                note: $note,
-                focusedField: $focusedField
-            )
-            .navigationTitle("Edit Transaction")
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done") {
-                        saveEdits()
-                        dismiss()
-                    }
+        TransactionFormFields(
+            amountText: $amountText,
+            name: $name,
+            type: $type,
+            category: $category,
+            date: $date,
+            time: $time,
+            note: $note,
+            focusedField: $focusedField
+        )
+        .navigationTitle("Edit Transaction")
+        .toolbar {
+            ToolbarItem(placement: .confirmationAction) {
+                Button {
+                    guard canSave else { return }
+                    saveEdits()
+                    dismiss()
+                } label: {
+                    Image(systemName: "checkmark")
                 }
+                .disabled(!canSave)
             }
-            .onAppear {
-                amountText = String(transaction.amount)
-                name = transaction.name
-                type = transaction.type
-                category = transaction.category
-                date = transaction.date
-                time = transaction.date
-                note = transaction.note ?? ""
-            }
+        }
+        .onAppear {
+            amountText = String(transaction.amount)
+            name = transaction.name
+            type = transaction.type
+            category = transaction.category
+            date = transaction.date
+            time = transaction.date
+            note = transaction.note ?? ""
         }
     }
     

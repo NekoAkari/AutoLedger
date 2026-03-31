@@ -15,10 +15,6 @@ struct ContentView: View {
                 .tabItem {
                     Label("Summary", systemImage: "rectangle.stack")
                 }
-			AccountsView()
-				.tabItem {
-					Label("Accounts", systemImage: "creditcard")
-				}
             TransactionListView()
                 .tabItem {
                     Label("Transactions", systemImage: "scroll")
