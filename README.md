@@ -82,6 +82,7 @@ Run the app on an iOS simulator or a connected device.
 - [x] Summary cards
 - [x] Reusable components
 - [x] Transaction editing
+- [ ] Receipt scanning (OCR-based, in progress)
 - [ ] Accounts system
 - [ ] Charts and analytics
 - [ ] Budget tracking
