@@ -23,6 +23,7 @@ private extension View {
 
 struct AddTransactionView: View {
     @Environment(\.modelContext) private var modelContext
+    let prefill: ReceiptDraft?
     
     // MARK: - Form State
     @State private var amountText: String = ""
@@ -32,6 +33,7 @@ struct AddTransactionView: View {
     @State private var type: TransactionType = .expense
     @State private var category: String = ""
     @State private var note: String = ""
+    @State private var didApplyPrefill = false
     
     // Tracks which text field is currently active so the keyboard can be dismissed
     @FocusState private var focusedField: TransactionFormField?
@@ -82,6 +84,29 @@ struct AddTransactionView: View {
         #endif
     }
     
+    // MARK: - Prefill
+    private func applyPrefillIfNeeded() {
+        guard let prefill, !didApplyPrefill else { return }
+        
+        if !prefill.merchant.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            name = prefill.merchant
+        }
+        
+        if let amount = prefill.amount {
+            amountText = String(format: "%.2f", amount)
+        }
+        
+        if let parsedDate = prefill.date {
+            date = parsedDate
+            time = parsedDate
+        }
+        
+        if !prefill.rawText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            note = prefill.rawText
+        }
+        
+        didApplyPrefill = true
+    }
     var body: some View {
         #if os(macOS)
         TransactionFormFields(
@@ -103,6 +128,9 @@ struct AddTransactionView: View {
             }
         }
         .frame(maxWidth: 720, maxHeight: .infinity, alignment: .topLeading)
+        .onAppear {
+            applyPrefillIfNeeded()
+        }
         .onSubmit {
             focusedField = nil
         }
@@ -119,6 +147,9 @@ struct AddTransactionView: View {
                 focusedField: $focusedField
             )
             .navigationTitle("Add Transaction")
+            .onAppear {
+                applyPrefillIfNeeded()
+            }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     SaveButton(canSave: canSave) {
@@ -146,5 +177,5 @@ struct AddTransactionView: View {
 }
 
 #Preview {
-    AddTransactionView()
+    AddTransactionView(prefill: nil)
 }
