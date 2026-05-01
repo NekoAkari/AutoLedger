@@ -43,7 +43,7 @@ struct AddTransactionView: View {
         if let value = Double(amountText) {
             return value > 0 && !name.trimmingCharacters(in: .whitespaces).isEmpty
         }
-        return false;
+        return false
     }
     
     // MARK: - Save Transaction
@@ -121,6 +121,13 @@ struct AddTransactionView: View {
         )
         .navigationTitle("Add Transaction")
         .toolbar {
+            ToolbarItem(placement: .navigation) {
+                NavigationLink {
+                    ReceiptScanView()
+                } label: {
+                    Label("Scan", systemImage: "camera")
+                }
+            }
             ToolbarItem(placement: .primaryAction) {
                 SaveButton(canSave: canSave) {
                     saveTransaction()
@@ -151,6 +158,13 @@ struct AddTransactionView: View {
                 applyPrefillIfNeeded()
             }
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    NavigationLink {
+                        ReceiptScanView()
+                    } label: {
+                        Label("Scan", systemImage: "camera")
+                    }
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     SaveButton(canSave: canSave) {
                         saveTransaction()

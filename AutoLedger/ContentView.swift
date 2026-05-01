@@ -30,7 +30,7 @@ struct ContentView: View {
                 case .transactions:
                     TransactionListView()
                 case .add:
-                    AddTransactionView()
+                    AddTransactionView(prefill: nil)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -45,7 +45,7 @@ struct ContentView: View {
                 .tabItem {
                     Label("Transactions", systemImage: "scroll")
                 }
-            AddTransactionView()
+            AddTransactionView(prefill: nil)
                 .tabItem {
                     Label("Add", systemImage: "plus.circle")
                 }

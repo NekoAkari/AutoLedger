@@ -11,7 +11,7 @@ struct ReceiptScanView: View {
     @State private var draft = ReceiptDraft()
     @State private var isScanning: Bool = false
     @State private var hasResult: Bool = false
-    
+    @State private var goToAdd = false
     var body: some View {
         NavigationStack {
             VStack(spacing: 20) {
@@ -25,6 +25,11 @@ struct ReceiptScanView: View {
                 }
                 .buttonStyle(.borderedProminent)
                 .controlSize(.large)
+                
+                if isScanning {
+                    ProgressView("Scanning…")
+                        .progressViewStyle(.circular)
+                }
                 
                 // MARK: - Result Preview
                 if hasResult {
@@ -49,11 +54,28 @@ struct ReceiptScanView: View {
                     .padding()
                     .background(Color(.systemGray))
                     .cornerRadius(12)
+                    
+                    Button {
+                        goToAdd = true
+                    } label: {
+                        Text("Use This Result")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.large)
+                    
+                    Button("Scan Again") {
+                        hasResult = false
+                    }
+                    .foregroundStyle(.secondary)
                 }
                 Spacer()
             }
             .padding()
             .navigationTitle("Scan Receipt")
+            .navigationDestination(isPresented: $goToAdd) {
+                AddTransactionView(prefill: draft)
+            }
         }
     }
     
@@ -65,6 +87,7 @@ struct ReceiptScanView: View {
             draft = ReceiptDraft(
                 merchant: "Starbucks",
                 amount: 6.45,
+                date: Calendar.current.date(from: DateComponents(year: 2026, month: 4, day: 7)),
                 tax: 0.45,
                 currencyCode: "CAD",
                 rawText: "STARBUCKS\n2026-04-07\nAmount 6.45\n Tax 0.45",
