@@ -5,17 +5,17 @@
 //  Created by Neko Akari on 2026-03-08.
 //
 
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 #if os(iOS)
 private extension View {
     func hideKeyboard() {
         UIApplication.shared.sendAction(
-        #selector(UIResponder.resignFirstResponder),
-        to: nil,
-        from: nil,
-        for: nil
+            #selector(UIResponder.resignFirstResponder),
+            to: nil,
+            from: nil,
+            for: nil
         )
     }
 }
@@ -23,32 +23,36 @@ private extension View {
 
 struct AddTransactionView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.dismiss) private var dismiss
+
     let prefill: ReceiptDraft?
-    
+    let onSave: () -> Void
+
     // MARK: - Form State
+
     @State private var amountText: String = ""
     @State private var name: String = ""
-    @State private var date: Date = Date()
-    @State private var time: Date = Date()
+    @State private var date: Date = .init()
+    @State private var time: Date = .init()
     @State private var type: TransactionType = .expense
     @State private var category: String = ""
     @State private var note: String = ""
     @State private var didApplyPrefill = false
-    
-    // Tracks which text field is currently active so the keyboard can be dismissed
+
+    /// Tracks which text field is currently active so the keyboard can be dismissed
     @FocusState private var focusedField: TransactionFormField?
-    
-    // Save is only enabled when the user enters a valid amount and a non‑empty name
+
+    /// Save is only enabled when the user enters a valid amount and a non‑empty name
     private var canSave: Bool {
         if let value = Double(amountText) {
             return value > 0 && !name.trimmingCharacters(in: .whitespaces).isEmpty
         }
         return false
     }
-    
+
     // MARK: - Save Transaction
+
     private func saveTransaction() {
-        
         // Combine the selected date and time into one Date value for storage
         let combinedDate = Calendar.current.date(
             bySettingHour: Calendar.current.component(.hour, from: time),
@@ -56,7 +60,7 @@ struct AddTransactionView: View {
             second: 0,
             of: date
         ) ?? date
-        
+
         let transaction = Transaction(
             name: name,
             date: combinedDate,
@@ -65,10 +69,10 @@ struct AddTransactionView: View {
             category: category,
             note: note.isEmpty ? nil : note
         )
-        
+
         // Save the transaction to SwiftData
         modelContext.insert(transaction)
-        
+
         // Reset the form after saving
         amountText = ""
         name = ""
@@ -78,35 +82,48 @@ struct AddTransactionView: View {
         note = ""
         type = .expense
         focusedField = nil
-        
+
         #if os(iOS)
         hideKeyboard()
         #endif
     }
-    
+
+    // MARK: - Save and Finish
+
+    private func saveAndFinish() {
+        guard canSave else {
+            return
+        }
+
+        saveTransaction()
+        onSave()
+    }
+
     // MARK: - Prefill
+
     private func applyPrefillIfNeeded() {
         guard let prefill, !didApplyPrefill else { return }
-        
+
         if !prefill.merchant.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             name = prefill.merchant
         }
-        
+
         if let amount = prefill.amount {
             amountText = String(format: "%.2f", amount)
         }
-        
+
         if let parsedDate = prefill.date {
             date = parsedDate
             time = parsedDate
         }
-        
+
         if !prefill.rawText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             note = prefill.rawText
         }
-        
+
         didApplyPrefill = true
     }
+
     var body: some View {
         #if os(macOS)
         TransactionFormFields(
@@ -121,19 +138,27 @@ struct AddTransactionView: View {
         )
         .navigationTitle("Add Transaction")
         .toolbar {
-            ToolbarItem(placement: .navigation) {
-                NavigationLink {
-                    ReceiptScanView()
-                } label: {
-                    Label("Scan", systemImage: "camera")
+            ToolbarItem(placement: .cancellationAction) {
+                Button("Cancel") {
+                    dismiss()
                 }
             }
-            ToolbarItem(placement: .primaryAction) {
+
+            ToolbarItem(placement: .navigation) {
+                NavigationLink {
+                    ReceiptScanView(onSave: onSave)
+                } label: {
+                    Label("Scan Receipt", systemImage: "doc.viewfinder")
+                }
+            }
+
+            ToolbarItem(placement: .confirmationAction) {
                 SaveButton(canSave: canSave) {
-                    saveTransaction()
+                    saveAndFinish()
                 }
             }
         }
+
         .frame(maxWidth: 720, maxHeight: .infinity, alignment: .topLeading)
         .onAppear {
             applyPrefillIfNeeded()
@@ -141,55 +166,71 @@ struct AddTransactionView: View {
         .onSubmit {
             focusedField = nil
         }
-        #elseif os (iOS)
-        NavigationStack {
-            TransactionFormFields(
-                amountText: $amountText,
-                name: $name,
-                type: $type,
-                category: $category,
-                date: $date,
-                time: $time,
-                note: $note,
-                focusedField: $focusedField
-            )
-            .navigationTitle("Add Transaction")
-            .onAppear {
-                applyPrefillIfNeeded()
+        #elseif os(iOS)
+        TransactionFormFields(
+            amountText: $amountText,
+            name: $name,
+            type: $type,
+            category: $category,
+            date: $date,
+            time: $time,
+            note: $note,
+            focusedField: $focusedField
+        )
+        .navigationTitle("Add Transaction")
+        .onAppear {
+            applyPrefillIfNeeded()
+        }
+        .toolbar {
+            ToolbarItem(placement: .cancellationAction) {
+                Button("Cancel") {
+                    dismiss()
+                }
             }
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    NavigationLink {
-                        ReceiptScanView()
-                    } label: {
-                        Label("Scan", systemImage: "camera")
-                    }
-                }
-                ToolbarItem(placement: .topBarTrailing) {
-                    SaveButton(canSave: canSave) {
-                        saveTransaction()
-                    }
-                }
 
-                ToolbarItemGroup(placement: .keyboard) {
-                    Spacer()
+            ToolbarItem(placement: .secondaryAction) {
+                NavigationLink {
+                    ReceiptScanView(onSave: onSave)
+                } label: {
+                    Label("Scan Receipt", systemImage: "doc.viewfinder")
                 }
             }
-            .contentShape(Rectangle())
-            .onTapGesture {
-                focusedField = nil
-                hideKeyboard()
+
+            ToolbarItem(placement: .confirmationAction) {
+                SaveButton(canSave: canSave) {
+                    saveAndFinish()
+                }
             }
-            .scrollDismissesKeyboard(.immediately)
-            .onSubmit {
-                focusedField = nil
-                hideKeyboard()
+
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+
+                Button("Done") {
+                    focusedField = nil
+                    hideKeyboard()
+                }
             }
+        }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            focusedField = nil
+            hideKeyboard()
+        }
+        .scrollDismissesKeyboard(.immediately)
+        .onSubmit {
+            focusedField = nil
+            hideKeyboard()
         }
         #endif
     }
 }
 
 #Preview {
-    AddTransactionView(prefill: nil)
+    NavigationStack {
+        AddTransactionView(
+            prefill: nil,
+            onSave: {}
+        )
+    }
+    .modelContainer(for: Transaction.self, inMemory: true)
 }

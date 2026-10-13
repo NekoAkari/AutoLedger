@@ -5,31 +5,32 @@
 //  Created by Neko Akari on 2026-03-08.
 //
 
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct TransactionListView: View {
-	// MARK: - Data Query
-	// Automatically fetch transactions from SwiftDate, sorted by newest first.
-	@Query(sort: \Transaction.date, order: .reverse)
-	private var transactions: [Transaction]
-	
-	// Access to the SwiftData context for deleting records.
-	@Environment(\.modelContext) private var modelContext
+    // MARK: - Data Query
+
+    /// Automatically fetch transactions from SwiftDate, sorted by newest first.
+    @Query(sort: \Transaction.date, order: .reverse)
+    private var transactions: [Transaction]
+
+    /// Access to the SwiftData context for deleting records.
+    @Environment(\.modelContext) private var modelContext
 
     #if os(macOS)
     @State private var selection: PersistentIdentifier?
     @State private var isEditingSelection = false
     #endif
-	
-	var body: some View {
+
+    var body: some View {
         #if os(macOS)
         Group {
             if transactions.isEmpty {
                 ContentUnavailableView(
                     "No Transactions Yet",
                     systemImage: "plus.capsule",
-                    description: Text("Add your first transaction from the Add Transaction section.")
+                    description: Text("Add your first transaction using the Add button.")
                 )
             } else {
                 Table(transactions, selection: $selection) {
@@ -75,40 +76,39 @@ struct TransactionListView: View {
                 .frame(minWidth: 520, minHeight: 420)
             }
         }
-        #elseif os (iOS)
-		NavigationStack {
-			Group {
-				if transactions.isEmpty {
-					ContentUnavailableView(
-						"No Transactions Yet",
-						systemImage: "plus.capsule",
-						description: Text("Add your first transaction from the Add tab.")
-					)
-				} else {
-					List {
-                        ForEach(transactions) { transaction in
-                            NavigationLink {
-                                TransactionEditorView(transaction: transaction)
-                            } label: {
-                                TransactionRow(transaction: transaction)
-                            }
+        #elseif os(iOS)
+        Group {
+            if transactions.isEmpty {
+                ContentUnavailableView(
+                    "No Transactions Yet",
+                    systemImage: "plus.capsule",
+                    description: Text("Add your first transaction using the Add button.")
+                )
+            } else {
+                List {
+                    ForEach(transactions) { transaction in
+                        NavigationLink {
+                            TransactionEditorView(transaction: transaction)
+                        } label: {
+                            TransactionRow(transaction: transaction)
                         }
-						.onDelete(perform: deleteTransactions)
-					}
-				}
-			}
-			.navigationTitle("Transactions")
-		}
+                    }
+                    .onDelete(perform: deleteTransactions)
+                }
+            }
+        }
+        .navigationTitle("Transactions")
         #endif
-	}
-	
-	// MARK: - Delete Action
-	// Remove selected transaction from SwiftData.
-	private func deleteTransactions(at offset:IndexSet) {
-		for index in offset {
-			modelContext.delete(transactions[index])
-		}
-	}
+    }
+
+    // MARK: - Delete Action
+
+    /// Remove selected transaction from SwiftData.
+    private func deleteTransactions(at offset: IndexSet) {
+        for index in offset {
+            modelContext.delete(transactions[index])
+        }
+    }
 
     #if os(macOS)
     private var selectedTransaction: Transaction? {
@@ -126,5 +126,5 @@ struct TransactionListView: View {
 
 #Preview {
     TransactionListView()
-		.modelContainer(for: Transaction.self, inMemory: true)
+        .modelContainer(for: Transaction.self, inMemory: true)
 }

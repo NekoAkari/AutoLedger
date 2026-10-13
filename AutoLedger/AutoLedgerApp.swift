@@ -5,8 +5,8 @@
 //  Created by Neko Akari on 2026-03-05.
 //
 
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 @main
 struct AutoLedgerApp: App {

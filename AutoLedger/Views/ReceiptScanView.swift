@@ -5,81 +5,84 @@
 //  Created by Akari on 2026-04-07.
 //
 
+import SwiftData
 import SwiftUI
 
 struct ReceiptScanView: View {
+    let onSave: () -> Void
+    
     @State private var draft = ReceiptDraft()
     @State private var isScanning: Bool = false
     @State private var hasResult: Bool = false
     @State private var goToAdd = false
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 20) {
+        VStack(spacing: 20) {
+            // MARK: - Scan Button
+
+            Button {
+                simulateScan()
+            } label: {
+                Label("Scan Receipt", systemImage: "camera")
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.large)
                 
-                // MARK: - Scan Button
+            if isScanning {
+                ProgressView("Scanning…")
+                    .progressViewStyle(.circular)
+            }
+                
+            // MARK: - Result Preview
+
+            if hasResult {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Preview")
+                        .font(.headline)
+                        
+                    Text("Merchant: \(draft.merchant)")
+                    Text("Amount: \(draft.amount ?? 0)")
+                    Text("Date: \(draft.date?.formatted() ?? "-")")
+                        
+                    Divider()
+                        
+                    Text("Raw Text")
+                        .font(.subheadline)
+                        
+                    Text(draft.rawText)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding()
+                .background(Color(.systemGray))
+                .cornerRadius(12)
+                    
                 Button {
-                    simulateScan()
+                    goToAdd = true
                 } label: {
-                    Label("Scan Receipt", systemImage: "camera")
+                    Text("Use This Result")
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.borderedProminent)
                 .controlSize(.large)
-                
-                if isScanning {
-                    ProgressView("Scanning…")
-                        .progressViewStyle(.circular)
-                }
-                
-                // MARK: - Result Preview
-                if hasResult {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Preview")
-                            .font(.headline)
-                        
-                        Text("Merchant: \(draft.merchant)")
-                        Text("Amount: \(draft.amount ?? 0)")
-                        Text("Date: \(draft.date?.formatted() ?? "-")")
-                        
-                        Divider()
-                        
-                        Text("Raw Text")
-                            .font(.subheadline)
-                        
-                        Text(draft.rawText)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding()
-                    .background(Color(.systemGray))
-                    .cornerRadius(12)
                     
-                    Button {
-                        goToAdd = true
-                    } label: {
-                        Text("Use This Result")
-                            .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .controlSize(.large)
-                    
-                    Button("Scan Again") {
-                        hasResult = false
-                    }
-                    .foregroundStyle(.secondary)
+                Button("Scan Again") {
+                    hasResult = false
                 }
-                Spacer()
+                .foregroundStyle(.secondary)
             }
-            .padding()
-            .navigationTitle("Scan Receipt")
-            .navigationDestination(isPresented: $goToAdd) {
-                AddTransactionView(prefill: draft)
-            }
+            Spacer()
+        }
+        .padding()
+        .navigationTitle("Scan Receipt")
+        .navigationDestination(isPresented: $goToAdd) {
+            AddTransactionView(prefill: draft, onSave: onSave)
         }
     }
-    
-    //MARK: - Temporary Mock
+
+    // MARK: - Temporary Mock
+
     private func simulateScan() {
         isScanning = true
         
@@ -101,5 +104,8 @@ struct ReceiptScanView: View {
 }
 
 #Preview {
-    ReceiptScanView()
+    NavigationStack {
+        ReceiptScanView(onSave: {})
+    }
+    .modelContainer(for: Transaction.self, inMemory: true)
 }

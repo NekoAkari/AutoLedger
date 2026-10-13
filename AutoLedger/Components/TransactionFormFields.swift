@@ -4,8 +4,8 @@
 //
 //  Created by Akari on 2026-03-21.
 //
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 enum TransactionFormField: Hashable {
     case amount

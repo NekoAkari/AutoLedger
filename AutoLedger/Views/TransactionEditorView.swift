@@ -5,8 +5,8 @@
 //  Created by Akari on 2026-03-21.
 //
 
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct TransactionEditorView: View {
     @Environment(\.dismiss) private var dismiss
@@ -17,8 +17,8 @@ struct TransactionEditorView: View {
     @State private var name: String = ""
     @State private var type: TransactionType = .expense
     @State private var category: String = ""
-    @State private var date: Date = Date()
-    @State private var time: Date = Date()
+    @State private var date: Date = .init()
+    @State private var time: Date = .init()
     @State private var note: String = ""
     
     @FocusState private var focusedField: TransactionFormField?
@@ -86,7 +86,7 @@ struct TransactionEditorView: View {
     let container = try! ModelContainer(
         for: Transaction.self,
         configurations: ModelConfiguration(isStoredInMemoryOnly: true)
-        )
+    )
     
     let sample = Transaction(
         name: "Coffee",

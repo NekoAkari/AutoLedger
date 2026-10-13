@@ -5,14 +5,15 @@
 //  Created by Neko Akari on 2026-03-08.
 //
 
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct SummaryView: View {
     // MARK: - Fetch Transactions
+
     @Query private var transactions: [Transaction]
 
-    // Aggregate income and expense in one pass to reduce work during updates.
+    /// Aggregate income and expense in one pass to reduce work during updates.
     private var totals: TransactionTotals {
         transactions.reduce(into: TransactionTotals()) { totals, transaction in
             switch transaction.type {
@@ -38,18 +39,16 @@ struct SummaryView: View {
             .padding(24)
         }
         .navigationTitle("Summary")
-        #elseif os (iOS)
-        NavigationStack {
-            VStack(spacing: 24) {
-                SummaryCard(title: "Balance", amount: totals.balance, color: .primary)
-                SummaryCard(title: "Income", amount: totals.income, color: .green)
-                SummaryCard(title: "Expense", amount: totals.expense, color: .red)
+        #elseif os(iOS)
+        VStack(spacing: 24) {
+            SummaryCard(title: "Balance", amount: totals.balance, color: .primary)
+            SummaryCard(title: "Income", amount: totals.income, color: .green)
+            SummaryCard(title: "Expense", amount: totals.expense, color: .red)
 
-                Spacer()
-            }
-            .padding()
-            .navigationTitle("Summary")
+            Spacer()
         }
+        .padding()
+        .navigationTitle("Summary")
         #endif
     }
 }

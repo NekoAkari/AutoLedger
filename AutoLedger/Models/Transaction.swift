@@ -17,16 +17,17 @@ enum TransactionType: String, Codable {
 
 @Model
 final class Transaction {
-
     // MARK: - Properties
+
     var name: String
     var date: Date
     var amount: Double
     var type: TransactionType
     var category: String
-    var note: String?;
+    var note: String?
 
     // MARK: - Initializer
+
     init(
         name: String,
         date: Date,
@@ -43,7 +44,7 @@ final class Transaction {
         self.note = note
     }
 
-    // Keep UI color mapping derived from the transaction type.
+    /// Keep UI color mapping derived from the transaction type.
     var displayColor: Color {
         type == .expense ? .red : .green
     }
