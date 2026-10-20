@@ -8,10 +8,11 @@
 import SwiftData
 import SwiftUI
 
+/// Displays transaction history with editing and deletion controls for each platform.
 struct TransactionListView: View {
     // MARK: - Data Query
 
-    /// Automatically fetch transactions from SwiftDate, sorted by newest first.
+    /// Fetches transactions from SwiftData, sorted by newest date first.
     @Query(sort: \Transaction.date, order: .reverse)
     private var transactions: [Transaction]
 
@@ -19,9 +20,12 @@ struct TransactionListView: View {
     @Environment(\.modelContext) private var modelContext
 
     #if os(macOS)
+    // Table selection uses the model identifier to locate the record for edit or delete.
     @State private var selection: PersistentIdentifier?
     @State private var isEditingSelection = false
     #endif
+
+    // MARK: - List Layout
 
     var body: some View {
         #if os(macOS)
@@ -103,7 +107,7 @@ struct TransactionListView: View {
 
     // MARK: - Delete Action
 
-    /// Remove selected transaction from SwiftData.
+    /// Deletes records at the offsets supplied by the iOS list.
     private func deleteTransactions(at offset: IndexSet) {
         for index in offset {
             modelContext.delete(transactions[index])
@@ -111,11 +115,15 @@ struct TransactionListView: View {
     }
 
     #if os(macOS)
+    // MARK: - Table Selection
+
+    /// Resolves the selected table row to its current SwiftData model.
     private var selectedTransaction: Transaction? {
         guard let selection else { return nil }
         return transactions.first { $0.persistentModelID == selection }
     }
 
+    /// Deletes the selected record and clears the table selection.
     private func deleteSelectedTransaction() {
         guard let selectedTransaction else { return }
         modelContext.delete(selectedTransaction)

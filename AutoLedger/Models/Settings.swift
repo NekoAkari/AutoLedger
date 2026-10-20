@@ -8,7 +8,11 @@
 import Foundation
 import SwiftUI
 
+/// The shared currency code and symbol used throughout the app.
 enum CurrencySettings {
+    // MARK: - Currency Configuration
+
+    /// Transactions currently use CAD; per-transaction currencies are not stored.
     static let currencyCode = "CAD"
 
     /// Reuse one formatter so view redraws do not keep allocating it.
@@ -19,5 +23,6 @@ enum CurrencySettings {
         return formatter
     }()
 
+    /// The currency symbol resolved by the shared formatter.
     static let currencySymbol: String = formatter.currencySymbol
 }

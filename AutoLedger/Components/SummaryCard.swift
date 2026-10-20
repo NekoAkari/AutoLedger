@@ -9,6 +9,7 @@ import SwiftUI
 
 // MARK: - Summary Card
 
+/// Displays a titled currency total using the app's shared currency settings.
 struct SummaryCard: View {
     let title: String
     let amount: Double

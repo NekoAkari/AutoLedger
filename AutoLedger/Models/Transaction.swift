@@ -9,18 +9,21 @@ import Foundation
 import SwiftData
 import SwiftUI
 
-/// Represents a financial transaction
+/// The income or expense direction associated with a transaction.
 enum TransactionType: String, Codable {
     case income
     case expense
 }
 
+/// A transaction persisted by SwiftData.
 @Model
 final class Transaction {
     // MARK: - Properties
 
     var name: String
+    /// The combined transaction date and time.
     var date: Date
+    /// Form saves normalize this value to a positive amount and store direction in type.
     var amount: Double
     var type: TransactionType
     var category: String
@@ -28,6 +31,7 @@ final class Transaction {
 
     // MARK: - Initializer
 
+    /// Creates a record from transaction details; form validation is handled separately.
     init(
         name: String,
         date: Date,
@@ -44,7 +48,9 @@ final class Transaction {
         self.note = note
     }
 
-    /// Keep UI color mapping derived from the transaction type.
+    // MARK: - Display Helpers
+
+    /// Derives the display color from the stored transaction type.
     var displayColor: Color {
         type == .expense ? .red : .green
     }

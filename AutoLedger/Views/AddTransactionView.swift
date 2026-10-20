@@ -10,6 +10,7 @@ import SwiftUI
 
 #if os(iOS)
 private extension View {
+    /// Resigns the active UIKit text responder to dismiss the keyboard.
     func hideKeyboard() {
         UIApplication.shared.sendAction(
             #selector(UIResponder.resignFirstResponder),
@@ -21,11 +22,14 @@ private extension View {
 }
 #endif
 
+/// Creates a transaction from manual entry or a receipt draft.
 struct AddTransactionView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
 
+    /// Optional receipt values applied once when the form appears.
     let prefill: ReceiptDraft?
+    /// The presentation owner closes the whole creation flow after a valid save.
     let onSave: () -> Void
 
     // MARK: - Form State
@@ -37,22 +41,30 @@ struct AddTransactionView: View {
     @State private var type: TransactionType = .expense
     @State private var category: String = ""
     @State private var note: String = ""
+    // Preserve user edits when returning from another screen in the navigation stack.
     @State private var didApplyPrefill = false
+    // Keep an untouched form free of validation messages until Save is attempted.
+    @State private var didAttemptSave = false
 
-    /// Tracks which text field is currently active so the keyboard can be dismissed
+    /// Tracks focus for keyboard dismissal and validation feedback.
     @FocusState private var focusedField: TransactionFormField?
 
-    /// Save is only enabled when the user enters a valid amount and a non‑empty name
+    /// Whether the current form values pass the shared save validation.
     private var canSave: Bool {
-        if let value = Double(amountText) {
-            return value > 0 && !name.trimmingCharacters(in: .whitespaces).isEmpty
-        }
-        return false
+        TransactionFormSupport.canSave(amountText: amountText, name: name)
     }
 
     // MARK: - Save Transaction
 
+    /// Inserts a normalized transaction into the context, then resets local form state.
     private func saveTransaction() {
+        guard let values = TransactionFormSupport.normalizedValues(
+            amountText: amountText,
+            type: type
+        ) else {
+            return
+        }
+
         // Combine the selected date and time into one Date value for storage
         let combinedDate = Calendar.current.date(
             bySettingHour: Calendar.current.component(.hour, from: time),
@@ -64,13 +76,13 @@ struct AddTransactionView: View {
         let transaction = Transaction(
             name: name,
             date: combinedDate,
-            amount: Double(amountText) ?? 0,
-            type: type,
+            amount: values.amount,
+            type: values.type,
             category: category,
             note: note.isEmpty ? nil : note
         )
 
-        // Save the transaction to SwiftData
+        // Insert the record into the SwiftData context.
         modelContext.insert(transaction)
 
         // Reset the form after saving
@@ -90,17 +102,25 @@ struct AddTransactionView: View {
 
     // MARK: - Save and Finish
 
+    /// Shows validation errors or completes the save and notifies the sheet owner.
     private func saveAndFinish() {
+        didAttemptSave = true
+
         guard canSave else {
+            // Amount is the first required field, followed by the transaction name.
+            focusedField = TransactionFormSupport.amountError(for: amountText)
+                != nil ? .amount : .name
             return
         }
 
         saveTransaction()
+        didAttemptSave = false
         onSave()
     }
 
     // MARK: - Prefill
 
+    /// Copies detected receipt values without reapplying them on later appearances.
     private func applyPrefillIfNeeded() {
         guard let prefill, !didApplyPrefill else { return }
 
@@ -109,6 +129,7 @@ struct AddTransactionView: View {
         }
 
         if let amount = prefill.amount {
+            // Display two decimal places and retain the sign for save-time conversion.
             amountText = String(format: "%.2f", amount)
         }
 
@@ -124,6 +145,8 @@ struct AddTransactionView: View {
         didApplyPrefill = true
     }
 
+    // MARK: - Form Layout
+
     var body: some View {
         #if os(macOS)
         TransactionFormFields(
@@ -134,7 +157,8 @@ struct AddTransactionView: View {
             date: $date,
             time: $time,
             note: $note,
-            focusedField: $focusedField
+            focusedField: $focusedField,
+            showValidationErrors: didAttemptSave
         )
         .navigationTitle("Add Transaction")
         .toolbar {
@@ -142,6 +166,7 @@ struct AddTransactionView: View {
                 Button("Cancel") {
                     dismiss()
                 }
+                .keyboardShortcut(.cancelAction)
             }
 
             ToolbarItem(placement: .navigation) {
@@ -153,13 +178,13 @@ struct AddTransactionView: View {
             }
 
             ToolbarItem(placement: .confirmationAction) {
-                SaveButton(canSave: canSave) {
+                SaveButton {
                     saveAndFinish()
                 }
+                .keyboardShortcut(.defaultAction)
             }
         }
 
-        .frame(maxWidth: 720, maxHeight: .infinity, alignment: .topLeading)
         .onAppear {
             applyPrefillIfNeeded()
         }
@@ -175,7 +200,8 @@ struct AddTransactionView: View {
             date: $date,
             time: $time,
             note: $note,
-            focusedField: $focusedField
+            focusedField: $focusedField,
+            showValidationErrors: didAttemptSave
         )
         .navigationTitle("Add Transaction")
         .onAppear {
@@ -197,7 +223,7 @@ struct AddTransactionView: View {
             }
 
             ToolbarItem(placement: .confirmationAction) {
-                SaveButton(canSave: canSave) {
+                SaveButton {
                     saveAndFinish()
                 }
             }

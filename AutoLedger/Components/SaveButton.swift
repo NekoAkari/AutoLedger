@@ -9,8 +9,9 @@ import SwiftUI
 
 // MARK: - Save Button
 
+/// A shared Save control that lets the caller validate input and show errors.
 struct SaveButton: View {
-    let canSave: Bool
+    /// Called on every Save attempt, including attempts with invalid form values.
     let action: () -> Void
 
     var body: some View {
@@ -18,7 +19,6 @@ struct SaveButton: View {
             Label("Save", systemImage: "checkmark")
         }
         .buttonStyle(.borderedProminent)
-        .disabled(!canSave)
         .help("Save Transaction")
     }
 }
